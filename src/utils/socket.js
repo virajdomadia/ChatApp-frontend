@@ -1,7 +1,7 @@
 // src/utils/socket.js
 import { io } from "socket.io-client";
 
-const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = "https://chatapp-backend-ezbn.onrender.com";
 
 const socket = io(ENDPOINT, {
   transports: ["websocket"],
