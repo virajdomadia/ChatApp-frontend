@@ -5,13 +5,11 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import PrivateRoute from "./components/PrivateRoute";
 import Home from "./pages/Home";
-import Navbar from "./components/Navbar";
 
 function App() {
   return (
     <>
       <AuthProvider>
-        <Navbar />
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />

@@ -3,8 +3,8 @@ import { useAuth } from "../contexts/AuthContext";
 import API from "../services/api";
 import ChatList from "../components/ChatList";
 import ChatWindow from "../components/ChatWindow";
-import UserSearch from "../components/UserSearch";
 import socket from "../utils/socket";
+import Navbar from "../components/Navbar";
 
 const Home = () => {
   const { user } = useAuth();
@@ -45,25 +45,43 @@ const Home = () => {
     }
   }, [user]);
 
+  const handleChatStarted = (chat) => {
+    setSelectedChat(chat);
+    if (!chats.some((c) => c._id === chat._id)) {
+      setChats([chat, ...chats]);
+    }
+  };
+
   return (
     <>
-      <UserSearch
-        onChatStarted={(chat) => {
-          setSelectedChat(chat);
-          if (!chats.some((c) => c._id === chat._id)) {
-            setChats([chat, ...chats]);
-          }
+      <Navbar />
+      <div
+        className="flex"
+        style={{
+          height: "calc(100vh - 64px)", // assuming Navbar height ~64px, adjust accordingly
+          overflow: "hidden",
         }}
-      />
-      <div className="flex h-screen">
+      >
         <ChatList
           chats={chats}
           onSelectChat={setSelectedChat}
           selectedChat={selectedChat}
           user={user}
           onlineUsers={onlineUsers}
+          onChatStarted={handleChatStarted}
+          style={{
+            height: "100%",
+            overflowY: "auto",
+          }}
         />
-        <ChatWindow selectedChat={selectedChat} />
+        <ChatWindow
+          selectedChat={selectedChat}
+          style={{
+            height: "100%",
+            overflowY: "auto",
+            flexGrow: 1,
+          }}
+        />
       </div>
     </>
   );

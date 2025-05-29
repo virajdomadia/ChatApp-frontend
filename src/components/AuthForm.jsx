@@ -30,13 +30,16 @@ const AuthForm = ({ type }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-100 via-orange-100 to-red-100">
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-2xl">
-        <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
+    <div className="min-h-screen flex items-center justify-center bg-[#0D1117]">
+      {" "}
+      {/* dark navy background */}
+      <div className="w-full max-w-md bg-[#121B22] p-8 rounded-2xl shadow-lg">
+        {" "}
+        {/* darker card background */}
+        <h2 className="text-3xl font-bold text-center mb-6 text-white">
           {type === "login" ? "Welcome Back 👋" : "Create Your Account"}
         </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {type === "register" && (
             <input
               type="text"
@@ -44,7 +47,7 @@ const AuthForm = ({ type }) => {
               placeholder="Full Name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="w-full px-4 py-3 bg-[#1E2A38] border border-[#2E445B] rounded-lg text-white placeholder-[#6A7D95] focus:outline-none focus:ring-2 focus:ring-[#0B81FF]"
               required
             />
           )}
@@ -55,7 +58,7 @@ const AuthForm = ({ type }) => {
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full px-4 py-3 bg-[#1E2A38] border border-[#2E445B] rounded-lg text-white placeholder-[#6A7D95] focus:outline-none focus:ring-2 focus:ring-[#0B81FF]"
             required
           />
 
@@ -65,25 +68,24 @@ const AuthForm = ({ type }) => {
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full px-4 py-3 bg-[#1E2A38] border border-[#2E445B] rounded-lg text-white placeholder-[#6A7D95] focus:outline-none focus:ring-2 focus:ring-[#0B81FF]"
             required
           />
 
           <button
             type="submit"
-            className="w-full py-3 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white font-semibold rounded-lg hover:shadow-lg transition"
+            className="w-full py-3 bg-[#0B81FF] hover:bg-[#0965D2] text-white font-semibold rounded-lg transition-shadow shadow-md"
           >
             {type === "login" ? "Login" : "Register"}
           </button>
         </form>
-
-        <p className="text-center text-sm text-gray-600 mt-6">
+        <p className="text-center text-sm text-[#6A7D95] mt-6">
           {type === "login" ? (
             <>
               Don’t have an account?{" "}
               <Link
                 to="/register"
-                className="text-orange-500 font-semibold hover:underline"
+                className="text-[#0B81FF] font-semibold hover:underline"
               >
                 Register here
               </Link>
@@ -93,7 +95,7 @@ const AuthForm = ({ type }) => {
               Already have an account?{" "}
               <Link
                 to="/login"
-                className="text-orange-500 font-semibold hover:underline"
+                className="text-[#0B81FF] font-semibold hover:underline"
               >
                 Login here
               </Link>
