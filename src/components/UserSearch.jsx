@@ -3,99 +3,83 @@ import API from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 
 const UserSearch = ({ onChatStarted }) => {
-  const { user } = useAuth();
-  const [search, setSearch] = useState("");
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSearch = async () => {
-    if (!search.trim()) return;
+  const { user } = useAuth();
 
+  const handleSearch = async () => {
+    if (!query.trim()) return;
     setLoading(true);
     setError(null);
+
     try {
-      const res = await API.get(`/auth/users?search=${search}`, {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
+      const res = await API.get(`/users/search?name=${query}`, {
+        headers: { Authorization: `Bearer ${user.token}` },
       });
       setResults(res.data);
     } catch (err) {
-      setError("Failed to fetch users");
+      setError("Search failed. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const startChat = async (userId) => {
-    try {
-      const res = await API.post(
-        "/chats",
-        { userId },
-        {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        }
-      );
-      onChatStarted(res.data);
-      setSearch("");
-      setResults([]);
-    } catch (err) {
-      setError("Failed to start chat");
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearch();
     }
+  };
+
+  const handleStartChat = (userToChat) => {
+    onChatStarted(userToChat);
+    setQuery("");
+    setResults([]);
   };
 
   return (
     <div className="mb-6">
-      <div className="flex mb-3">
+      <div className="flex gap-2">
         <input
           type="text"
-          className="flex-grow p-3 rounded-l-md bg-[#1E2A38] border border-[#243447] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Search users..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleSearch();
-          }}
-          disabled={loading}
+          className="flex-grow rounded-md px-4 py-2 bg-[#1E2A38] text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#0B81FF]"
+          placeholder="Search users to chat..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
+          aria-label="Search users"
         />
         <button
           onClick={handleSearch}
-          disabled={loading || !search.trim()}
-          className={`px-4 py-3 rounded-r-md text-white transition-colors duration-200 ${
-            loading || !search.trim()
-              ? "bg-blue-300 cursor-not-allowed"
-              : "bg-[#0B81FF] hover:bg-[#0a6bd1]"
-          }`}
+          disabled={loading}
+          className="bg-[#0B81FF] hover:bg-[#065DC1] disabled:opacity-50 text-white font-semibold px-5 rounded transition"
+          aria-label="Search"
         >
           {loading ? "Searching..." : "Search"}
         </button>
       </div>
 
-      {error && (
-        <div className="text-red-500 text-sm font-semibold mb-3">{error}</div>
-      )}
+      {error && <p className="mt-2 text-red-400">{error}</p>}
 
-      <div className="max-h-60 overflow-y-auto rounded-md border border-[#243447] bg-[#121B22]">
-        {results.length === 0 && !loading ? (
-          <p className="text-gray-400 text-center text-sm p-4">
-            No users found.
-          </p>
-        ) : (
-          results.map((u) => (
-            <div
-              key={u._id}
-              className="p-3 cursor-pointer hover:bg-[#1E2A38] transition-colors border-b border-[#243447]"
-              onClick={() => startChat(u._id)}
-            >
-              <p className="font-medium text-white">{u.name}</p>
-              <p className="text-xs text-gray-400">{u.email}</p>
-            </div>
-          ))
-        )}
-      </div>
+      <ul className="mt-3 max-h-48 overflow-y-auto rounded-md bg-[#121B22] shadow-inner">
+        {results.map((user) => (
+          <li
+            key={user._id}
+            onClick={() => handleStartChat(user)}
+            className="cursor-pointer px-4 py-2 hover:bg-[#0B81FF]/20 text-white truncate"
+            tabIndex={0}
+            role="button"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleStartChat(user);
+            }}
+          >
+            {user.name}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
