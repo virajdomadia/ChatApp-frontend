@@ -1,4 +1,3 @@
-// src/components/ChatWindow.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import API from "../services/api";
@@ -8,7 +7,7 @@ const ChatWindow = ({ selectedChat }) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
-  const [typingUsers, setTypingUsers] = useState([]); // Track typing users
+  const [typingUsers, setTypingUsers] = useState([]);
   const typingTimeoutRef = useRef(null);
 
   useEffect(() => {
@@ -17,9 +16,7 @@ const ChatWindow = ({ selectedChat }) => {
     const fetchMessages = async () => {
       try {
         const res = await API.get(`/messages/${selectedChat._id}`, {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
+          headers: { Authorization: `Bearer ${user.token}` },
         });
         setMessages(res.data);
       } catch (err) {
@@ -28,23 +25,20 @@ const ChatWindow = ({ selectedChat }) => {
     };
 
     fetchMessages();
-
-    socket.emit("join", selectedChat._id);
+    socket.emit("joinChat", selectedChat._id);
   }, [selectedChat, user.token]);
 
   useEffect(() => {
-    // Receive new message
     const handleReceive = (msg) => {
       if (msg.chatId === selectedChat?._id) {
         setMessages((prev) => [...prev, msg]);
       }
     };
 
-    // Typing event handlers
     const handleTyping = ({ userId, userName }) => {
       if (userId !== user._id) {
         setTypingUsers((prev) => {
-          if (!prev.some((u) => u.userId === userId)) {
+          if (!prev.find((u) => u.userId === userId)) {
             return [...prev, { userId, userName }];
           }
           return prev;
@@ -67,7 +61,6 @@ const ChatWindow = ({ selectedChat }) => {
     };
   }, [selectedChat, user._id]);
 
-  // Emit typing events with debounce
   const handleInputChange = (e) => {
     setText(e.target.value);
 
@@ -82,7 +75,10 @@ const ChatWindow = ({ selectedChat }) => {
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
 
     typingTimeoutRef.current = setTimeout(() => {
-      socket.emit("stopTyping", { chatId: selectedChat._id, userId: user._id });
+      socket.emit("stopTyping", {
+        chatId: selectedChat._id,
+        userId: user._id,
+      });
     }, 1500);
   };
 
@@ -113,8 +109,11 @@ const ChatWindow = ({ selectedChat }) => {
         ...newMsg,
       });
 
-      // Stop typing immediately after sending
-      socket.emit("stopTyping", { chatId: selectedChat._id, userId: user._id });
+      socket.emit("stopTyping", {
+        chatId: selectedChat._id,
+        userId: user._id,
+      });
+
       setText("");
     } catch (err) {
       console.error("Send message failed", err);
@@ -139,13 +138,12 @@ const ChatWindow = ({ selectedChat }) => {
                 <div className="text-xs text-right">{msg.sender.name}</div>
               </div>
             ))}
-
-            {/* Typing Indicator */}
             {typingUsers.length > 0 && (
-              <div className="italic text-gray-500 text-sm mt-2">Typing...</div>
+              <div className="italic text-gray-500 text-sm mt-2">
+                {typingUsers.map((u) => u.userName).join(", ")} typing...
+              </div>
             )}
           </div>
-
           <form onSubmit={sendMessage} className="p-4 bg-gray-50 border-t flex">
             <input
               className="flex-1 p-2 border rounded mr-2"

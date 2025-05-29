@@ -1,4 +1,3 @@
-// src/pages/Home.jsx
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import API from "../services/api";
@@ -11,32 +10,39 @@ const Home = () => {
   const { user } = useAuth();
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
     const fetchChats = async () => {
       try {
         const res = await API.get("/chats", {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
+          headers: { Authorization: `Bearer ${user.token}` },
         });
         setChats(res.data);
       } catch (err) {
         console.error("Failed to load chats", err);
       }
     };
-    fetchChats();
+
+    if (user?.token) {
+      fetchChats();
+    }
   }, [user]);
 
   useEffect(() => {
     if (user?._id) {
       socket.connect();
-      socket.emit("join", user._id);
-    }
+      socket.emit("joinUser", user._id);
 
-    return () => {
-      socket.disconnect();
-    };
+      socket.on("onlineUsers", (users) => {
+        setOnlineUsers(users);
+      });
+
+      return () => {
+        socket.disconnect();
+        socket.off("onlineUsers");
+      };
+    }
   }, [user]);
 
   return (
@@ -54,6 +60,8 @@ const Home = () => {
           chats={chats}
           onSelectChat={setSelectedChat}
           selectedChat={selectedChat}
+          user={user}
+          onlineUsers={onlineUsers}
         />
         <ChatWindow selectedChat={selectedChat} />
       </div>
